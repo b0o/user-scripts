@@ -1,0 +1,17 @@
+{
+  "name": "user-scripts",
+  "version": "0.1.0",
+  "description": "A collection of user scripts for use with TamperMonkey or GreaseMonkey.",
+  "repository": {
+    "type": "git",
+    "url": "github.com/b0o/user-scripts"
+  },
+  "author": "Maddison Hellstrom (https://github.com/b0o)",
+  "contributors": [],
+  "license": "GPL-3",
+  "devDependencies": {
+    "eslint": "7.3.1",
+    "eslint-config-airbnb-base": "14.2.0",
+    "eslint-plugin-import": "^2.22.0"
+  }
+}

@@ -1,0 +1,42 @@
+module.exports = {
+  extends: "airbnb-base",
+
+  env: {
+    browser: true,
+  },
+
+  rules: {
+    semi:           ["error", "never"],
+    "comma-dangle": ["warn", "always-multiline"],
+    quotes:         ["warn", "double"],
+
+    "newline-per-chained-call": "off",
+    "no-restricted-syntax":     "off",
+    "implicit-arrow-linebreak": "off",
+    camelcase:                  "off",
+
+    "key-spacing": [
+      "warn",
+      {
+        singleLine: {
+          beforeColon: false,
+          afterColon:  true,
+        },
+        multiLine: {
+          beforeColon: false,
+          afterColon:  true,
+          align:       "value",
+        },
+      },
+    ],
+
+    indent: [
+      "warn",
+      2,
+      {
+        SwitchCase:         0,
+        VariableDeclarator: { var: 2, let: 2, const: 3 },
+      },
+    ],
+  },
+}
