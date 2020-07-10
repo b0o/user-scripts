@@ -14,4 +14,4 @@ gallons and weight to pounds.
 
 ## License
 
-GNU Public License, version 3.0 or later
+GNU General Public License, version 3.0 or later
