@@ -9,13 +9,9 @@ A collection of user scripts for use with [TamperMonkey](https://www.tampermonke
   - `Ctrl+Return` to send a message
   - `Ctrl+Grave` (`` ` ``) insert a code block
 
-### [Instacart Price-per-Unit](https://github.com/b0o/user-scripts/tree/master/instacart-ppu.user.js)
+## Archived Scripts
 
-For each item listing, this user script calculates the total
-weight/volume/count and shows a price per unit. Volume units are normalized to
-gallons and weight to pounds.
-
-![Instacart price-per-unit screenshot](./img/instacart-ppu.png)
+See the [archive](./archive) directory for scripts that are no longer maintained.
 
 ## License
 
