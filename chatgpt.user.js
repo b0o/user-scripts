@@ -11,77 +11,93 @@
 // @run-at       document-start
 // ==/UserScript==
 
-window.onload = function () {
-  "use strict";
+window.onload = async function() {
+  "use strict"
+
+  if (Notification.permission !== "granted") {
+    await Notification.requestPermission()
+  }
 
   const triggerInputChange = (node, value = "") => {
-    const setValue = Object.getOwnPropertyDescriptor(
-      node.__proto__,
-      "value"
-    ).set;
-    const event = new Event("input", { bubbles: true });
-    setValue.call(node, value);
-    node.dispatchEvent(event);
-  };
+    const setValue = Object.getOwnPropertyDescriptor(node.__proto__, "value").set
+    const event = new Event("input", { bubbles: true })
+    setValue.call(node, value)
+    node.dispatchEvent(event)
+  }
 
-  let timedOut = false;
+  let timedOut = false
   const accept = (e) => {
-    e.preventDefault();
-    timedOut = true;
+    e.preventDefault()
+    timedOut = true
     setTimeout(() => {
-      timedOut = false;
-    }, 250);
-  };
+      timedOut = false
+    }, 250)
+  }
 
   const action = (observer) => {
-    document
-      .querySelector("form textarea")
-      .addEventListener("keydown", function (e) {
-        if (timedOut) return;
+    console.log("action")
+    document.querySelector("form textarea")?.addEventListener("keydown", function(e) {
+      if (timedOut) return
 
-        // On Ctrl+Enter, send message
-        if (e.ctrlKey && e.keyCode === 13) {
-          document.querySelector("form button").click();
-          return accept(e);
+      // On Ctrl+Enter, send message
+      if (e.ctrlKey && e.keyCode === 13) {
+        document.querySelector("form button:last-child").click()
+        return accept(e)
+      }
+
+      // On Ctrl+`, insert a code block
+      // If the user has selected text, wrap it in a code block
+      if (e.ctrlKey && e.keyCode === 192) {
+        console.log("insert code block")
+        e.preventDefault()
+        const textarea = document.querySelector("form textarea")
+        const startPos = textarea.selectionStart
+        const endPos = textarea.selectionEnd
+        const preText = textarea.value.substring(0, startPos)
+        const selectedText = textarea.value.substring(startPos, endPos)
+        const postText = textarea.value.substring(endPos, textarea.value.length)
+
+        // Check if there's selected text
+        if (selectedText.length > 0) {
+          const codeBlock = `${preText}\`\`\`\n${selectedText}\n\`\`\`${postText}`
+          triggerInputChange(textarea, codeBlock)
+        } else {
+          const codeBlock = `${preText}\`\`\`\n\n\`\`\`${postText}`
+          triggerInputChange(textarea, codeBlock)
+          setTimeout(() => {
+            textarea.selectionStart = startPos + 4
+            textarea.selectionEnd = startPos + 4
+          }, 1)
         }
+        return accept(e)
+      }
+    })
+  }
 
-        // On Ctrl+`, insert a code block
-        // If the user has selected text, wrap it in a code block
-        if (e.ctrlKey && e.keyCode === 192) {
-          console.log("insert code block");
-          e.preventDefault();
-          const textarea = document.querySelector("form textarea");
-          const startPos = textarea.selectionStart;
-          const endPos = textarea.selectionEnd;
-          const preText = textarea.value.substring(0, startPos);
-          const selectedText = textarea.value.substring(startPos, endPos);
-          const postText = textarea.value.substring(
-            endPos,
-            textarea.value.length
-          );
-
-          // Check if there's selected text
-          if (selectedText.length > 0) {
-            const codeBlock = `${preText}\`\`\`\n${selectedText}\n\`\`\`${postText}`;
-            triggerInputChange(textarea, codeBlock);
-          } else {
-            const codeBlock = `${preText}\`\`\`\n\n\`\`\`${postText}`;
-            triggerInputChange(textarea, codeBlock);
-            setTimeout(() => {
-              textarea.selectionStart = startPos + 4;
-              textarea.selectionEnd = startPos + 4;
-            }, 1);
-          }
-          return accept(e);
-        }
-      });
-  };
-
-  let timer;
+  let inProgress = false
+  let timer
   var observer = new MutationObserver((changes, observer) => {
-    clearTimeout(timer);
-    timer = setTimeout(action, 500, observer);
-  });
-  observer.observe(document, { childList: true, subtree: true });
-  timer = setTimeout(action, 500, observer);
-};
+    clearTimeout(timer)
+    timer = setTimeout(() => action(observer), 500)
+    if (document.querySelector("form button:last-child")?.dataset?.testid === "send-button") {
+      if (inProgress) {
+        console.log("Done")
+        // show notification if the window is not focused
+        if (!document.hasFocus()) {
+          const notification = new Notification("ChatGPT", {
+            body: "Finished generating",
+            requireInteraction: true,
+          })
+          notification.onclick = () => {
+            window.focus()
+          }
+        }
+        inProgress = false
+      }
+    } else {
+      inProgress = true
+    }
+  })
+  observer.observe(document, { childList: true, subtree: true })
+  timer = setTimeout(() => action(observer), 500)
+}
