@@ -34,8 +34,17 @@ window.onload = async function() {
     }, 250)
   }
 
-  const action = (observer) => {
-    console.log("action")
+  const onComplete = () => {
+    const message = document.querySelector(".final-completion div[data-message-id]")?.innerText
+      ?? "Finished generating"
+    const shortMessage = (message.length >= 100 ? "…" : "") + message.substring(message.length - 100)
+    new Notification("ChatGPT", {
+      body: shortMessage,
+      requireInteraction: true,
+    })
+  }
+
+  const setupEventListeners = () => {
     document.querySelector("form textarea")?.addEventListener("keydown", function(e) {
       if (timedOut) return
 
@@ -76,22 +85,12 @@ window.onload = async function() {
 
   let inProgress = false
   let timer
-  var observer = new MutationObserver((changes, observer) => {
+  var observer = new MutationObserver(() => {
     clearTimeout(timer)
-    timer = setTimeout(() => action(observer), 500)
+    timer = setTimeout(setupEventListeners, 500)
     if (document.querySelector("form button:last-child")?.dataset?.testid === "send-button") {
       if (inProgress) {
-        console.log("Done")
-        // show notification if the window is not focused
-        if (!document.hasFocus()) {
-          const notification = new Notification("ChatGPT", {
-            body: "Finished generating",
-            requireInteraction: true,
-          })
-          notification.onclick = () => {
-            window.focus()
-          }
-        }
+        onComplete()
         inProgress = false
       }
     } else {
@@ -99,5 +98,5 @@ window.onload = async function() {
     }
   })
   observer.observe(document, { childList: true, subtree: true })
-  timer = setTimeout(() => action(observer), 500)
+  timer = setTimeout(() => setupEventListeners(observer), 500)
 }
