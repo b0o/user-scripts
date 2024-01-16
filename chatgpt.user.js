@@ -36,8 +36,8 @@ window.onload = async function() {
 
   const onComplete = () => {
     if (document.hasFocus()) return
-    const message = document.querySelector(".final-completion div[data-message-id]")?.innerText
-      ?? "Finished generating"
+    const message = document.querySelector(".final-completion div[data-message-id]")?.innerText?.trim()
+      || "Finished generating"
     const shortMessage = (message.length >= 100 ? "…" : "") + message.substring(message.length - 100)
     new Notification("ChatGPT", {
       body: shortMessage,
